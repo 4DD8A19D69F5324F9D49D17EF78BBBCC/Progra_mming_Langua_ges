@@ -3,8 +3,6 @@
 
 (provide (all-defined-out)) ;; so we can put tests in a second file
 
-
-
 ;; helper function to make a stream
 
 (define (make-stream f start) (cons start (lambda () (make-stream f (f start)))))
@@ -14,24 +12,19 @@
 (define (sequence low high stride) (
   if (<= low high) 
      (cons low (sequence (+ low stride) high stride))
-     null
-     )
-)
+     null))
 
 (define (string-append-map xs suffix) 
-  (map (lambda (str) (string-append str suffix)) xs)                     
-)
+  (map (lambda (str) (string-append str suffix)) xs))
 
 (define (list-nth-mod xs n) (cond [(< n 0) (error "list-nth-mod: negative number")]
                                   [(null? xs) (error "list-nth-mod: empty list")]
                                   [(>= n (length xs))  (list-nth-mod xs (remainder n (length xs)))]
-                                  [#t (car (list-tail xs n))]
-                             ))
+                                  [#t (car (list-tail xs n))]))
 
 (define (stream-for-n-steps s n) (if (= n 0) null
                                  (let ([pr (s)])
-                                   (cons (car pr) (stream-for-n-steps (cdr pr) (- n 1)))
-                                 )))
+                                   (cons (car pr) (stream-for-n-steps (cdr pr) (- n 1))))))
                                
 (define (funny-number-stream) (make-stream (lambda (x) (cond [(= (remainder x 5) 0) (+ (- x) 1)]
                                                              [(= (remainder x 5) 4) (- (+ x 1))]
@@ -41,12 +34,10 @@
 (define (dan-then-dog) (letrec ([dan (lambda() (cons "dan.jpg" dog))]
                                 [dog (lambda() (cons "dog.jpg" dan))]
                                 )
-                         (dan)
-                         ))
+                         (dan)))
 
 (define (stream-add-zero s) (let ([pr (s)])
-                            (lambda () (cons (cons 0 (car pr)) (stream-add-zero (cdr pr))))
-                            ))
+                            (lambda () (cons (cons 0 (car pr)) (stream-add-zero (cdr pr))))))
 
 (define (cycle-lists xs ys) (letrec ([helper
                                       (lambda (n)
@@ -88,10 +79,18 @@
                                            )
                                        )
                                      )
-                                     elem
-                                 )
-                               )
-                              )))
+                                     elem)))))
+
+(define-syntax while-less
+  (syntax-rules (do)
+    [(while-less e1 do e2)
+     (letrec
+         ([helper (lambda (v1 v2)
+                    (if (< v2 v1)
+                        (helper v1 e2)
+                        #t))])
+       (helper e1 e2))]))
+                       
 
                                                           
                                       
